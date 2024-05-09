@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Image Enhancement</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        input[type="file"] {
+            margin-bottom: 10px;
+        }
+        button {
+            padding: 10px 20px;
+        }
+        #resultImage {
+            max-width: 100%;
+            margin-top: 20px;
+        }
+    </style>
+</head>
+<body>
+    <h1>Image Enhancement</h1>
+    <input type="file" id="imageUpload" accept="image/*">
+    <br>
+    <button onclick="processImage()">Process Image</button>
+    <br>
+    <img id="resultImage" style="display: none;">
+
+    <script>
+        function processImage() {
+            const imageUpload = document.getElementById('imageUpload');
+            const resultImage = document.getElementById('resultImage');
+
+            if (imageUpload.files.length === 0) {
+                alert('Please select an image.');
+                return;
+            }
+
+            const formData = new FormData();
+            formData.append('image', imageUpload.files[0]);
+
+            fetch('/enhance', {
+                method: 'POST',
+                body: formData
+            })
+            .then(response => response.blob())
+            .then(blob => {
+                const imageUrl = URL.createObjectURL(blob);
+                resultImage.src = imageUrl;
+                resultImage.style.display = 'block';
+
+                // Create a download link
+                const downloadLink = document.createElement('a');
+                downloadLink.href = imageUrl;
+                downloadLink.download = 'enhanced_image.jpg';
+                downloadLink.innerHTML = 'Download Enhanced Image';
+                document.body.appendChild(downloadLink);
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('An error occurred while processing the image.');
+            });
+        }
+    </script>
+</body>
+</html>
